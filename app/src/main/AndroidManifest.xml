@@ -3,9 +3,12 @@
     package="com.example.a10019356.infomap">
 
     <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version" />
+
+    <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyAAuRtiPyJyLhN1Bd7_WlG8FXP62BZ81vM"
-        />
+        android:value="@string/google_maps_key" />
 
 
     <application
@@ -15,6 +18,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

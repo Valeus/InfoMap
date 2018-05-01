@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">InfoMap</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+            AIzaSyAAuRtiPyJyLhN1Bd7_WlG8FXP62BZ81vM
+        </string>
+
 </resources>
