@@ -1,5 +1,6 @@
 package com.example.a10019356.infomap;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +12,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
@@ -19,6 +32,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     GoogleMap googleMap;
     int markerCount= 0;
     Marker test;
+    String string;
+    double latitude, longitude;
+    String title = "MLT Banana";
+    String status = "broken";
+    GetInfo task;
 
 
     @Override
@@ -36,6 +54,115 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+        googleMap = map;
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                latitude = latLng.latitude;
+                longitude = latLng.longitude;
+                task = new GetInfo();
+                task.execute();
+                if(status.equals("ZERO_RESULTS")){
+                    task = new GetInfo();
+                    task.execute();
+                    if (markerCount == 0) {
+                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title("Please pick a more interesting place"));
+                        test.showInfoWindow();
+                        markerCount++;
+                    }
+                    if (markerCount == 1) {
+                        test.remove();
+                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title("Please pick a more interesting place"));
+                        test.showInfoWindow();
+                    }
+                }else if(status.equals("OK")){
+                    task = new GetInfo();
+                    task.execute();
+                    if (markerCount == 0) {
+                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title(title));
+                        test.showInfoWindow();
+                        markerCount++;
+                    }
+                    if (markerCount == 1) {
+                        test.remove();
+                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title(title));
+                        test.showInfoWindow();
+                    }
+                }else {
+                    Log.d("broke", "how fix");
+                }
+
+            }
+        });
+
+    }
+
+    public class GetInfo extends AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            URL gMaps;
+            URLConnection urlConnection;
+            InputStream inputStream;
+            BufferedReader bufferedReader;
+            String hold;
+            try {
+                gMaps = new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng="+latitude+","+longitude+"&key=AIzaSyD8h4VOwljg9KuxvoQ3-WrxcnFP4FDdS2k");
+                urlConnection = gMaps.openConnection();
+                inputStream = urlConnection.getInputStream();
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                hold = bufferedReader.readLine();
+                string = hold;
+                while(hold!=null) {
+                    hold = bufferedReader.readLine();
+                    string += hold;
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            JSONObject yada = null;
+            try {
+                yada = new JSONObject(string);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                status = yada.getString("status");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if(status.equals("OK")) {
+                JSONArray blah = null;
+                try {
+                    blah = yada.getJSONArray("results");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JSONObject funnn = null;
+                try {
+                    funnn = blah.getJSONObject(0);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    title = funnn.getString("formatted_address");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            return null;
+        }
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -48,30 +175,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         mapView.onSaveInstanceState(mapViewBundle);
-    }
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-        googleMap = map;
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                if(markerCount==0) {
-                    test = googleMap.addMarker(new MarkerOptions().position(latLng).title("TEST").snippet("Population: 1"));
-                    test.showInfoWindow();
-                    markerCount++;
-                }
-                if(markerCount==1){
-                    test.remove();
-                    test = googleMap.addMarker(new MarkerOptions().position(latLng).title("TEST").snippet("Population: 1"));
-                    test.showInfoWindow();
-                }
-
-
-
-            }
-        });
-
     }
 
     @Override
@@ -110,6 +213,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView.onLowMemory();
     }
 
-
 }
-
