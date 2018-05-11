@@ -51,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.id_map);
         mapView.onCreate(mapViewBundle);
         mapView.getMapAsync(this);
+        latitude = 0.0;
+        longitude = 0.0;
+        task = new GetInfo();
+        task.execute();
 
     }
 
@@ -62,11 +66,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onMapClick(LatLng latLng) {
                 latitude = latLng.latitude;
                 longitude = latLng.longitude;
+                Log.d("banana", latitude+" , "+longitude);
                 task = new GetInfo();
                 task.execute();
                 if(status.equals("ZERO_RESULTS")){
-                    task = new GetInfo();
-                    task.execute();
                     if (markerCount == 0) {
                         test = googleMap.addMarker(new MarkerOptions().position(latLng).title("Please pick a more interesting place"));
                         test.showInfoWindow();
@@ -78,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         test.showInfoWindow();
                     }
                 }else if(status.equals("OK")){
-                    task = new GetInfo();
-                    task.execute();
                     if (markerCount == 0) {
                         test = googleMap.addMarker(new MarkerOptions().position(latLng).title(title));
                         test.showInfoWindow();
@@ -109,13 +110,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             BufferedReader bufferedReader;
             String hold;
             try {
-                gMaps = new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng="+latitude+","+longitude+"&key=AIzaSyD8h4VOwljg9KuxvoQ3-WrxcnFP4FDdS2k");
+                gMaps = new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&key=AIzaSyD8h4VOwljg9KuxvoQ3-WrxcnFP4FDdS2k");
                 urlConnection = gMaps.openConnection();
                 inputStream = urlConnection.getInputStream();
                 bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 hold = bufferedReader.readLine();
                 string = hold;
-                while(hold!=null) {
+                while (hold != null) {
                     hold = bufferedReader.readLine();
                     string += hold;
                 }
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            if(status.equals("OK")) {
+            if (status.equals("OK")) {
                 JSONArray blah = null;
                 try {
                     blah = yada.getJSONArray("results");
@@ -159,9 +160,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
 
-
             return null;
         }
+
     }
 
     @Override
