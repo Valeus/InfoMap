@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.id_map);
         mapView.onCreate(mapViewBundle);
         mapView.getMapAsync(this);
-        latitude = 30.0;
+        latitude = 32.0;
         longitude = 30.0;
         task = new GetInfo();
         task.execute();
