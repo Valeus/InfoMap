@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     String title = "MLT Banana";
     String status = "broken";
     GetInfo task;
+    int exe=1;
 
 
     @Override
@@ -51,8 +52,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.id_map);
         mapView.onCreate(mapViewBundle);
         mapView.getMapAsync(this);
-        latitude = 0.0;
-        longitude = 0.0;
+        latitude = 30.0;
+        longitude = 30.0;
         task = new GetInfo();
         task.execute();
 
@@ -69,18 +70,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.d("banana", latitude+" , "+longitude);
                 task = new GetInfo();
                 task.execute();
-                if(status.equals("ZERO_RESULTS")){
-                    if (markerCount == 0) {
-                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title("Please pick a more interesting place"));
-                        test.showInfoWindow();
-                        markerCount++;
+                if(status.equals("OK")){
+                    Log.d("findError","OK");
+                    task = new GetInfo();
+                    task.execute();
+                    if(title.contains("Unnamed Road")) {
+                        title.replace("Unnamed Road, ", "");
+                        Log.d("xd", "replacement thing works");
                     }
-                    if (markerCount == 1) {
-                        test.remove();
-                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title("Please pick a more interesting place"));
-                        test.showInfoWindow();
-                    }
-                }else if(status.equals("OK")){
                     if (markerCount == 0) {
                         test = googleMap.addMarker(new MarkerOptions().position(latLng).title(title));
                         test.showInfoWindow();
@@ -89,6 +86,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (markerCount == 1) {
                         test.remove();
                         test = googleMap.addMarker(new MarkerOptions().position(latLng).title(title));
+                        test.showInfoWindow();
+                    }
+                }else if(status.equals("ZERO_RESULTS")) {
+                    Log.d("findError", "zero result");
+                    task = new GetInfo();
+                    task.execute();
+                    if (markerCount == 0) {
+                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title("Please pick a more interesting place"));
+                        test.showInfoWindow();
+                        markerCount++;
+                    }
+                    if (markerCount == 1) {
+                        test.remove();
+                        test = googleMap.addMarker(new MarkerOptions().position(latLng).title("Please pick a more interesting place"));
                         test.showInfoWindow();
                     }
                 }else {
@@ -109,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             InputStream inputStream;
             BufferedReader bufferedReader;
             String hold;
+            if(exe<=1)
+                exe++;
             try {
                 gMaps = new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&key=AIzaSyD8h4VOwljg9KuxvoQ3-WrxcnFP4FDdS2k");
                 urlConnection = gMaps.openConnection();
@@ -138,27 +151,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            if (status.equals("OK")) {
-                JSONArray blah = null;
-                try {
-                    blah = yada.getJSONArray("results");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                JSONObject funnn = null;
-                try {
-                    funnn = blah.getJSONObject(0);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    title = funnn.getString("formatted_address");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            JSONArray blah = null;
+            try {
+                blah = yada.getJSONArray("results");
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+
+            JSONObject funnn = null;
+            try {
+                funnn = blah.getJSONObject(0);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if(status.equals("OK"))
+                    title = funnn.getString("formatted_address");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
 
             return null;
         }
